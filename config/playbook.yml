@@ -1,0 +1,65 @@
+- hosts: localhost
+  become: yes
+  vars:
+    mysql_root_password: jk45!#123
+    mysql_root_user: moodle_user
+    Moodle_fullname: moodle
+    adminpass: unacontraseniaseguratoga_2000
+  tasks:
+    - name: ensure nginx is at the latest version
+      apt: name=nginx state=latest
+    - name: start nginx
+      service:
+          name: nginx
+          state: started
+    - name: Create nginx configuration file
+      template: src=default_nginx.j2 dest=/etc/nginx/sites-enabled/default mode=0600
+    - name: Install MYSQL
+      apt:
+        name: mariadb-server #debian: mysql-server
+        state: present
+    - name: Create Mysql configuration file
+      template: src=root.cnf.j2 dest=/etc/mysql/conf.d/mysql.cnf mode=0644
+    - name: Restart service MYSQL, in all cases
+      service:
+        name: mysqld
+        state: restarted
+    - name: Restart service MYSQL, in all cases
+      service:
+        name: mysql
+        state: restarted
+    - name: Install the Python MySQL Support Libraries
+      apt: name=python-mysqldb state=latest
+    - name: Install php-fpm and deps
+      apt: 
+        name: ['php', 'php-fpm', 'php-mysql', 'php-common', 'php-common', 'php-curl', 'php-zip', 'php-xml', 'php-gd','php-intl','php-mbstring','php-xmlrpc','php-soap']
+        state: present
+    - name: start mysql server and enable it on reboot
+      service: name=mariadb state=started enabled=true
+    - mysql_user:
+        name: "{{ mysql_root_user }}"
+        password: "{{ mysql_root_password }}"
+        priv: '*.*:ALL,GRANT'
+        state: present
+
+    - name: Create a   DB  Moodle
+      mysql_db: name=moodle state=present login_user=root login_password={{ mysql_root_password }} encoding=utf8mb4 config_file=/etc/my.cnf
+    - name: erase nginx path
+      file: path=/var/www/html/ state=absent
+    - name: create nginx path
+      file: path=/var/www/html/ state=directory
+    - file: path=/var/www/ owner=ubuntu group=www-data  mode=u=rwX,g=rwX,o=rX recurse=yes
+    - name: print to stdout
+      command: " ls -l /var/www/html/ "
+      register: hello  
+    - debug: msg="{{ hello.stdout }}"
+    - debug: msg="{{ hello.stderr }}"
+    - name: clone moodle
+      git:
+        repo: 'https://github.com/moodle/moodle'
+        dest: "/var/www/html/"
+        version: MOODLE_35_STABLE
+    - name: install moodel
+      command: sudo -u www-data /usr/bin/php /var/www/html/admin/cli/install.php --non-interactive  --agree-license --dbuser={{ mysql_root_user }} --dbpass={{ mysql_root_password }} --dbtype=mariadb --adminpass={{ adminpass }} --wwwroot=http://test1.idolearning.co  --fullname=moodle --shortname=moodle
+      register: hello  
+    

@@ -1,0 +1,4 @@
+deploy/.terraform/
+config/playbook.retry
+deploy/terraform.tfstate
+deploy/terraform.tfstate.backup

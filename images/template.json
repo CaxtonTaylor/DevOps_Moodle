@@ -1,0 +1,36 @@
+{
+    "variables": {
+        "aws_access_key": "",
+        "aws_secret_key": "",
+        "aws_profile": "terraform",
+        "region": "us-east-1",
+        "ssh_username": "ubuntu",
+        "base_ami": "ami-0ac019f4fcb7cb7e6",
+        "instance_type": "t3.micro"
+    },
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "access_key": "{{user `aws_access_key`}}",
+            "secret_key": "{{user `aws_secret_key`}}",
+            "profile": "{{user `aws_profile`}}",
+            "region": "{{user `region` }}",
+            "source_ami": "{{user `base_ami`}}",
+            "instance_type": "{{user `instance_type` }}",
+            "ssh_username": "{{user `ssh_username`}}",
+            "ami_name": "Moodle-Packer",
+            "associate_public_ip_address": true
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "./config/provision.sh"
+        },
+        {
+            "type": "ansible",
+            "playbook_dir": "./config/",
+            "playbook_files": ["./config/playbook.yml"]
+        }
+    ]
+}
