@@ -1,11 +1,18 @@
-- hosts: localhost
+- hosts: default
   become: yes
   vars:
+    moodle_version: MOODLE_34_STABLE
     mysql_root_password: jk45!#123
     mysql_root_user: moodle_user
     Moodle_fullname: moodle
     adminpass: unacontraseniaseguratoga_2000
+    adminemail: admin@idolearning.co
   tasks:
+    - name: clone snap
+      become: no
+      git:
+        repo: 'git@github.com:CaxtonTaylor/snap_hub_ido.git'
+        dest: "~/snap"
     - name: ensure nginx is at the latest version
       apt: name=nginx state=latest
     - name: start nginx
@@ -23,10 +30,6 @@
     - name: Restart service MYSQL, in all cases
       service:
         name: mysqld
-        state: restarted
-    - name: Restart service MYSQL, in all cases
-      service:
-        name: mysql
         state: restarted
     - name: Install the Python MySQL Support Libraries
       apt: name=python-mysqldb state=latest
@@ -58,8 +61,15 @@
       git:
         repo: 'https://github.com/moodle/moodle'
         dest: "/var/www/html/"
-        version: MOODLE_35_STABLE
-    - name: install moodel
-      command: sudo -u www-data /usr/bin/php /var/www/html/admin/cli/install.php --non-interactive  --agree-license --dbuser={{ mysql_root_user }} --dbpass={{ mysql_root_password }} --dbtype=mariadb --adminpass={{ adminpass }} --wwwroot=http://test1.idolearning.co  --fullname=moodle --shortname=moodle
+        version: "{{ moodle_version }}"
+    - name: install moodle
+      command: sudo -u www-data /usr/bin/php /var/www/html/admin/cli/install.php --non-interactive  --agree-license --dbuser={{ mysql_root_user }} --dbpass={{ mysql_root_password }} --dbtype=mariadb --adminpass={{ adminpass }} --wwwroot=http://test1.idolearning.co  --fullname=moodle --shortname=moodle --adminemail={{ adminemail }}
+      register: hello
+    - name: move snap to theme
+      command: mv ~ubuntu/snap /var/www/html/theme/snap
+    - name: print to stdout
+      command: "sudo -u www-data php /var/www/html/admin/cli/upgrade.php --non-interactive"
       register: hello  
-    
+    - debug: msg="{{ hello.stdout }}"
+    - debug: msg="{{ hello.stderr }}"
+

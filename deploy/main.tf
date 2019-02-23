@@ -9,13 +9,12 @@ provider "aws" {
   region                  = "us-east-1"
   shared_credentials_file = "/Users/afcorredor/.aws/credentials"
   profile                 = "serveless_ido"
-
 }
 resource "aws_instance" "web" {
   provider = "aws.ido"
   associate_public_ip_address = "true"
-  ami = "ami-02116101049c29dac"
-  instance_type = "t2.nano"
+  ami = "ami-0e7af999fed041eac"
+  instance_type = "t3.micro"
   key_name = "idoProd"
   subnet_id = "subnet-0d296e50b0377120d"
   vpc_security_group_ids= ["sg-0c673642feedd4dbf", "sg-0ea6c67c3c546ed22","sg-03945e77a95b7c665"]
