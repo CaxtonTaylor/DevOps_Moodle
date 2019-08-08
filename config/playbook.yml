@@ -13,6 +13,10 @@
       git:
         repo: 'git@github.com:CaxtonTaylor/snap_hub_ido.git'
         dest: "~/snap"
+    # - name: disable apache
+    #   service:
+    #       name: apache
+    #       state: stopped
     - name: ensure nginx is at the latest version
       apt: name=nginx state=latest
     - name: start nginx
@@ -63,11 +67,11 @@
         dest: "/var/www/html/"
         version: "{{ moodle_version }}"
     - name: install moodle
-      command: sudo -u www-data /usr/bin/php /var/www/html/admin/cli/install.php --non-interactive  --agree-license --dbuser={{ mysql_root_user }} --dbpass={{ mysql_root_password }} --dbtype=mariadb --adminpass={{ adminpass }} --wwwroot=http://test1.idolearning.co  --fullname=moodle --shortname=moodle --adminemail={{ adminemail }}
+      command: sudo -u www-data /usr/bin/php /var/www/html/admin/cli/install.php --non-interactive  --agree-license --dbuser={{ mysql_root_user }} --dbpass={{ mysql_root_password }} --dbtype=mariadb --adminpass={{ adminpass }} --wwwroot=http://test.idolearning.co  --fullname=moodle --shortname=moodle --adminemail={{ adminemail }} --adminuser=admin_moodle
       register: hello
     - name: move snap to theme
       command: mv ~ubuntu/snap /var/www/html/theme/snap
-    - name: print to stdout
+    - name: upgrade theme
       command: "sudo -u www-data php /var/www/html/admin/cli/upgrade.php --non-interactive"
       register: hello  
     - debug: msg="{{ hello.stdout }}"

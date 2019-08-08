@@ -1,0 +1,20 @@
+- name: This is a hello-world example
+  hosts: test
+  vars:
+    moodlefolder: /var/www/html
+  tasks:
+  - name: echo
+    command: ls -l
+    register: ansibleVersion
+  - debug: 
+      msg: "{{ ansibleVersion.stdout }}"
+  - name: clone snap
+    become: no
+    git:
+      repo: 'git@github.com:CaxtonTaylor/moodle-mod_adaptivequiz.git'
+      dest: "~/moodle-mod_adaptivequiz"
+  - name: move snap to theme
+    become: yes
+    command: mv ~ubuntu/moodle-mod_adaptivequiz /var/www/html/mod/adaptivequiz
+  - name: upgrade theme
+    command: "sudo -u www-data php /var/www/html/admin/cli/upgrade.php --non-interactive"

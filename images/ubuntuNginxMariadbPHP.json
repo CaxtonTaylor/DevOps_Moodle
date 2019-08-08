@@ -10,6 +10,7 @@
     },
     "builders": [
         {
+            "ami_name": "Ubuntu-NginxMariaPHP",
             "type": "amazon-ebs",
             "access_key": "{{user `aws_access_key`}}",
             "secret_key": "{{user `aws_secret_key`}}",
@@ -17,19 +18,18 @@
             "region": "{{user `region` }}",
             "source_ami": "{{user `base_ami`}}",
             "instance_type": "{{user `instance_type` }}",
-            "ssh_username": "{{user `ssh_username`}}",
-            "ami_name": "Moodle-34",
+            "ssh_username": "{{user `ssh_username`}}", 
             "associate_public_ip_address": true
         }
     ],
     "provisioners": [
         {
             "type": "shell",
-            "script": "./config/provision.sh"
+            "script": "./config/installAnsible.sh"
         },
         {
             "type": "ansible",
-            "playbook_file": "./config/playbook.yml",
+            "playbook_file": "./config/NginxPHPMysql.yml",
             "host_alias": "default",
             "ansible_env_vars": [ "ANSIBLE_HOST_KEY_CHECKING=False"]
         }

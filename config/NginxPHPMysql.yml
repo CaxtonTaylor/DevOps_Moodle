@@ -1,0 +1,25 @@
+- hosts: default
+  become: yes
+  tasks:
+  - name: ensure nginx is at the latest version
+    apt: name=nginx state=latest
+  - name: start nginx
+    service:
+      name: nginx
+      state: started
+  - name: Create nginx configuration file
+    template: src=default_nginx.j2 dest=/etc/nginx/sites-enabled/default mode=0600
+  - name: Install MYSQL
+    apt:
+      name: mariadb-server #debian: mysql-server
+      state: present
+  - name: Restart service MYSQL, in all cases
+    service:
+      name: mysqld
+      state: restarted
+  - name: Install php-fpm and deps
+    apt: 
+      name: ['php', 'php-fpm', 'php-mysql', 'php-common', 'php-common', 'php-curl', 'php-zip', 'php-xml', 'php-gd','php-intl','php-mbstring','php-xmlrpc','php-soap']
+      state: present
+  - name: start mysql server and enable it on reboot
+    service: name=mariadb state=started enabled=true
