@@ -29,7 +29,7 @@ resource "aws_instance" "test" {
 resource "aws_route53_record" "test" {
   provider = "aws.caxton"
   zone_id = "Z3TYJIBDK1XUQP"
-  name    = "test.idolearning.co"
+  name    = "quindio.idolearning.co"
   type    = "A"
   ttl     = "300"
   records = ["${aws_instance.test.public_ip}"]
